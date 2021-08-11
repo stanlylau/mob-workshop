@@ -1,38 +1,44 @@
 export class Cart{
   constructor(inventory){
     this.inventory = inventory
-    this.scannedSkuQty = {}
+    this.qtyOfScannedItems = new Map()
   }
-   
-  scan(sku){
-    if(this.scannedSkuQty[sku]) {
-      this.scannedSkuQty[sku] += 1
+
+  scan (sku) {
+    let item = this.inventory.findItem(sku)
+    let qty = this.qtyOfScannedItems.get(item)
+
+    if (qty) {
+      this.qtyOfScannedItems.set(item, qty + 1)
     } else {
-      this.scannedSkuQty[sku] = 1
+      this.qtyOfScannedItems.set(item, 1)
     }
+  }
+
+  calculateSpecialPrice(item, quantity) {
+    const numOfSpecialPriceItem = Math.trunc(quantity / item.specialPrice.qty)        
+    return item.specialPrice.price * numOfSpecialPriceItem
+  }
+
+  calculateNormalPrice(item, quantity) {
+    const numOfNormPricedItem = item.specialPrice? quantity % item.specialPrice.qty : quantity
+    return item.unitPrice * numOfNormPricedItem
   }
 
   checkout() {
-    let item
     let sum = 0
-
-    for (let sku in this.scannedSkuQty) {
-      item = this.inventory.items.find(item => item.sku === sku)  
-      
+    
+    this.qtyOfScannedItems.forEach((qty, item) => {
       if (item.specialPrice) {
-        const specialPriceQty= Math.trunc(this.scannedSkuQty[item.sku] / item.specialPrice.qty )
-        const normalPriceQty= this.scannedSkuQty[item.sku] % item.specialPrice.qty
- 
-        if (specialPriceQty > 0){
-          sum += item.specialPrice.price * specialPriceQty
-        }
-        sum += item.unitPrice * normalPriceQty
-      } else {
-        sum += item.unitPrice * this.scannedSkuQty[sku]
-      }
-    }
+        sum += this.calculateSpecialPrice(item, qty)
 
-    return sum
+        sum += this.calculateNormalPrice(item, qty)
+      } else {
+        sum += this.calculateNormalPrice(item, qty)
+      }
+    })
+    
+    return parseFloat(sum.toFixed(2))
   }
 }
 
@@ -57,6 +63,10 @@ export class Inventory{
 
   add(item){
     this.items.push(item)
+  }
+
+  findItem(sku) {
+    return this.items.find(item => item.sku === sku)
   }
 }
 
