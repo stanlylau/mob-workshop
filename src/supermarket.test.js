@@ -15,199 +15,53 @@ describe("Supermarket", () => {
   beforeEach(() => {
     inventory = new Inventory();
     cart = new Cart(inventory);
-    apple = new Item("1", "apple", 0.5);
-    orange = new Item("2", "orange", 0.3);
-  });
+    apple = new Item("sku1", "apple", 0.5);
+    orange = new Item("sku2", "orange", 0.3);
 
-  it("scan one product 1 time", () => {
     inventory.add(apple);
-
-    cart.scan(apple.sku);
-
-    expect(cart.checkout()).toBe(apple.unitPrice);
+    inventory.add(orange);
   });
 
   it("scan 1 product 3 times", () => {
-    inventory.add(apple);
-
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
+    scan(apple, times(3));
 
     expect(cart.checkout()).toBe(apple.unitPrice * 3);
   });
 
-  it("2 products scan 2", () => {
-    inventory.add(apple);
-    inventory.add(orange);
-
-    cart.scan(apple.sku);
-    cart.scan(orange.sku);
-
-    expect(cart.checkout()).toBe(apple.unitPrice + orange.unitPrice);
-  });
-
-  it("2 products scan 3", () => {
-    inventory.add(apple);
-    inventory.add(orange);
-
-    cart.scan(apple.sku);
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
+  it("scan 2 different products", () => {
+    scan(apple, times(1));
+    scan(orange, times(2));
 
     expect(cart.checkout()).toBe(apple.unitPrice + orange.unitPrice * 2);
   });
 
-  it("special price", () => {
-    apple.setSpecialPrice(new NForXPrice(5, 2.0));
-    inventory.add(apple);
-
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-
-    expect(cart.checkout()).toBe(2.0);
-  });
-
-  it("special price for apple", () => {
+  it("scan special price for 1 bundle of apple and orange each", () => {
     apple.setSpecialPrice(new NForXPrice(5, 1.6));
     orange.setSpecialPrice(new NForXPrice(5, 1.0));
 
-    inventory.add(orange);
-    inventory.add(apple);
-
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-
-    expect(cart.checkout()).toBe(1.6);
-  });
-
-  it("special price for orange", () => {
-    apple.setSpecialPrice(new NForXPrice(5, 1.6));
-    orange.setSpecialPrice(new NForXPrice(5, 1.0));
-
-    inventory.add(orange);
-    inventory.add(apple);
-
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-
-    expect(cart.checkout()).toBe(1.0);
-  });
-
-  it("special price for apple and orange", () => {
-    apple.setSpecialPrice(new NForXPrice(5, 1.6));
-    orange.setSpecialPrice(new NForXPrice(5, 1.0));
-
-    inventory.add(orange);
-    inventory.add(apple);
-
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
+    scan(orange, times(5));
+    scan(apple, times(5));
 
     expect(cart.checkout()).toBe(2.6);
   });
 
-  it("special price for 10 apple", () => {
-    apple.setSpecialPrice(new NForXPrice(5, 1.6));
-    orange.setSpecialPrice(new NForXPrice(5, 1.0));
-
-    inventory.add(orange);
-    inventory.add(apple);
-
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-
-    expect(cart.checkout()).toBe(3.2);
-  });
-
-  it("special price for 12 apple", () => {
+  it("scan special price for bundles of apples plus 2 oranges", () => {
     apple.setSpecialPrice(new NForXPrice(5, 1.6));
 
-    inventory.add(apple);
+    scan(apple, times(5));
+    scan(orange, times(2));
+    scan(apple, times(7));
 
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-
-    expect(cart.checkout()).toBe(4.2);
+    expect(cart.checkout()).toBe(4.8);
   });
 
-  it("special price for 10 apple plus 1 orange", () => {
-    apple.setSpecialPrice(new NForXPrice(5, 1.6));
-    orange.setSpecialPrice(new NForXPrice(5, 1.0));
+  function scan(item, quantity) {
+    for (let i = 0; i < quantity; i++) {
+      cart.scan(item.sku);
+    }
+  }
 
-    inventory.add(orange);
-    inventory.add(apple);
-
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(orange.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-
-    expect(cart.checkout()).toBe(3.5);
-  });
-
-  it("special price for 10 apple plus 5 orange", () => {
-    apple.setSpecialPrice(new NForXPrice(5, 1.6));
-    // orange.setSpecialPrice(new NForXPrice(5, 1.0))
-
-    inventory.add(orange);
-    inventory.add(apple);
-
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(orange.sku);
-    cart.scan(orange.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-    cart.scan(apple.sku);
-
-    expect(cart.checkout()).toBe(3.8);
-  });
+  function times(number) {
+    return number;
+  }
 });
