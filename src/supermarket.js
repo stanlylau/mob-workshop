@@ -1,79 +1,80 @@
-export class Cart{
-  constructor(inventory){
-    this.inventory = inventory
-    this.qtyOfScannedItems = new Map()
+export class Cart {
+  constructor(inventory) {
+    this.inventory = inventory;
+    this.scannedItems = new Map();
   }
 
-  scan (sku) {
-    let item = this.inventory.findItem(sku)
-    let qty = this.qtyOfScannedItems.get(item)
+  scan(sku, weight) {
+    let item = this.inventory.findItem(sku);
+    let currentUnits = this.scannedItems.get(item);
+    //let incrementUnit = weight || 1; // could be weight or physical qty of item
 
-    if (qty) {
-      this.qtyOfScannedItems.set(item, qty + 1)
+    if (currentUnits) {
+      this.scannedItems.set(item, currentUnits + (weight || 1));
     } else {
-      this.qtyOfScannedItems.set(item, 1)
+      this.scannedItems.set(item, weight || 1);
     }
   }
 
-  calculateSpecialPrice(item, quantity) {
-    const numOfSpecialPriceItem = Math.trunc(quantity / item.specialPrice.qty)        
-    return item.specialPrice.price * numOfSpecialPriceItem
+  calculateSpecialPrice(item, unit) {
+    const numOfSpecialPriceItem = Math.trunc(unit / item.specialPrice.qty);
+    return item.specialPrice.price * numOfSpecialPriceItem;
   }
 
-  calculateNormalPrice(item, quantity) {
-    const numOfNormPricedItem = item.specialPrice? quantity % item.specialPrice.qty : quantity
-    return item.unitPrice * numOfNormPricedItem
+  calculateNormalPrice(item, unit) {
+    const numOfNormPricedItem = item.specialPrice
+      ? unit % item.specialPrice.qty
+      : unit;
+    return item.unitPrice * numOfNormPricedItem;
   }
 
   checkout() {
-    let sum = 0
-    
-    this.qtyOfScannedItems.forEach((qty, item) => {
+    let sum = 0;
+
+    this.scannedItems.forEach((unit, item) => {
       if (item.specialPrice) {
-        sum += this.calculateSpecialPrice(item, qty)
+        sum += this.calculateSpecialPrice(item, unit);
 
-        sum += this.calculateNormalPrice(item, qty)
+        sum += this.calculateNormalPrice(item, unit);
       } else {
-        sum += this.calculateNormalPrice(item, qty)
+        sum += this.calculateNormalPrice(item, unit);
       }
-    })
-    
-    return parseFloat(sum.toFixed(2))
+    });
+
+    return parseFloat(sum.toFixed(2));
   }
 }
 
-export class Item{
-  constructor(sku, name, unitPrice){
-    this.sku = sku
-    this.name = name
-    this.unitPrice = unitPrice
-    this.specialPrice = null
+export class Item {
+  constructor(sku, name, unitPrice) {
+    this.sku = sku;
+    this.name = name;
+    this.unitPrice = unitPrice;
+    this.specialPrice = null;
   }
 
-  setSpecialPrice(specialPrice){
-    this.specialPrice = specialPrice
+  setSpecialPrice(specialPrice) {
+    this.specialPrice = specialPrice;
   }
 }
 
-export class Inventory{
+export class Inventory {
   constructor() {
-    this.items = []
-   }
-   
+    this.items = [];
+  }
 
-  add(item){
-    this.items.push(item)
+  add(item) {
+    this.items.push(item);
   }
 
   findItem(sku) {
-    return this.items.find(item => item.sku === sku)
+    return this.items.find((item) => item.sku === sku);
   }
 }
 
-export class NForXPrice{
-  constructor(qty, price){
-    this.qty = qty
-    this.price = price
+export class NForXPrice {
+  constructor(qty, price) {
+    this.qty = qty;
+    this.price = price;
   }
-
 }
