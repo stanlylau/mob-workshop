@@ -55,7 +55,7 @@ describe("Supermarket", () => {
     expect(cart.checkout()).toBe(4.8);
   });
 
-  it("scan price by weight", () => {
+  it("scan with weight", () => {
     let durian;
     durian = new Item("sku3", "durian", 6); //price for 1 kg
     inventory.add(durian);
