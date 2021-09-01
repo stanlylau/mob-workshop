@@ -1,9 +1,12 @@
 import { Cart, Inventory, Item, NForXPrice } from "./supermarket";
 
 /** Upcoming requirements
- * 1. Price by weight e.g. $5.99/kg
- * 2. Buy two, get one free
- * 3. Remove an item from cart
+ * 1. [done] Price by weight e.g. $5.99/kg
+ * 2. [done] Print product item signs for items - price & weight
+ * 3. [done] Print product items signs for items - unit price e.g. $1 for 1 daikon
+ * 4. Introduce display and command line input
+ * 5. Buy two, get one free
+ * 6. Remove an item from cart
  */
 
 describe("Supermarket", () => {
