@@ -16,28 +16,16 @@ export class Cart {
     }
   }
 
-  calculateSpecialPrice(item, unit) {
-    const numOfSpecialPriceItem = Math.trunc(unit / item.specialPrice.qty);
-    return item.specialPrice.price * numOfSpecialPriceItem;
-  }
-
-  calculateNormalPrice(item, unit) {
-    const numOfNormPricedItem = item.specialPrice
-      ? unit % item.specialPrice.qty
-      : unit;
-    return item.unitPrice * numOfNormPricedItem;
-  }
-
   checkout() {
     let sum = 0;
 
     this.scannedItems.forEach((unit, item) => {
       if (item.specialPrice) {
-        sum += this.calculateSpecialPrice(item, unit);
+        sum += item.specialPrice.calculateSpecialPrice(unit);
 
-        sum += this.calculateNormalPrice(item, unit);
+        sum += item.calculateNormalPrice(unit);
       } else {
-        sum += this.calculateNormalPrice(item, unit);
+        sum += item.calculateNormalPrice(unit);
       }
     });
 
@@ -55,6 +43,13 @@ export class Item {
 
   setSpecialPrice(specialPrice) {
     this.specialPrice = specialPrice;
+  }
+
+  calculateNormalPrice(unit) {
+    const numOfNormPricedItem = this.specialPrice
+      ? unit % this.specialPrice.qty
+      : unit;
+    return this.unitPrice * numOfNormPricedItem;
   }
 }
 
@@ -76,5 +71,20 @@ export class NForXPrice {
   constructor(qty, price) {
     this.qty = qty;
     this.price = price;
+  }
+
+  calculateSpecialPrice(unit) {
+    const numOfSpecialPriceItem = Math.trunc(unit / this.qty);
+    return this.price * numOfSpecialPriceItem;
+  }
+}
+
+export class Buy2Get1Free {
+  constructor(item) {
+    this.qty = 3;
+    this.item = item;
+  }
+  calculateSpecialPrice(unit) {
+    return Math.trunc(unit / this.qty) * this.item.unitPrice * 2;
   }
 }

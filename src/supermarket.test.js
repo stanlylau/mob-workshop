@@ -1,4 +1,4 @@
-import { Cart, Inventory, Item, NForXPrice } from "./supermarket";
+import { Cart, Inventory, Item, NForXPrice, Buy2Get1Free } from "./supermarket";
 
 /** Upcoming requirements
  * 1. [done] Price by weight e.g. $5.99/kg
@@ -46,6 +46,30 @@ describe("Supermarket", () => {
     scan(apple, times(5));
 
     expect(cart.checkout()).toBe(2.6);
+  });
+
+  it("buy 2 apple get 1 free", () => {
+    apple.setSpecialPrice(new Buy2Get1Free(apple));
+
+    scan(apple, times(3));
+
+    expect(cart.checkout()).toBe(1.0);
+  });
+
+  it("scan 4 orange for price of 3", () => {
+    apple.setSpecialPrice(new Buy2Get1Free(apple));
+
+    scan(apple, times(4));
+
+    expect(cart.checkout()).toBe(1.5);
+  });
+
+  it("buy 2 orange get 1 free", () => {
+    orange.setSpecialPrice(new Buy2Get1Free(orange));
+
+    scan(orange, times(3));
+
+    expect(cart.checkout()).toBe(0.6);
   });
 
   it("scan special price for bundles of apples plus 2 oranges", () => {
